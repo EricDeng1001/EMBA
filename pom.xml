@@ -87,7 +87,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
             <configuration>
-              <finalName>trade-system</finalName>
+              <finalName>emba</finalName>
             </configuration>
           </plugin>
           <plugin>
