@@ -1,0 +1,7 @@
+version: '3'
+services:
+  sonar:
+    image: sonarqube:7.9.1-community
+    ports:
+      - 59001:9000
+      - 59092:9092

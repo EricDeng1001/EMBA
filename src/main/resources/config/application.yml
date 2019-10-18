@@ -1,0 +1,203 @@
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+application:
+  name: ${spring.application.name}
+  domain: com.ymzstudio.emba
+  author: Eric Deng
+
+security:
+  rememberMeKey: 5be9c81018863860683c04e3fd3e05c306005b56b1e56a6292768910f7da6c1e7891c97c31751eb43b25692fdcbe01cde37e
+
+spring:
+  application:
+    name: EMBA
+
+  profiles:
+    active: @spring.profiles.active@
+    include:
+      - swagger
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
+
+  liquibase:
+    enabled: true
+    change-log: classpath:config/liquibase/master.xml
+    drop-first: false
+
+  kafka:
+    consumer:
+      bootstrap-servers:
+        - "localhost:9092"
+      group-id: host
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: ${application.domain}.service.dto
+
+    producer:
+      bootstrap-servers:
+        - "localhost:9092"
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      client-id: 1
+
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: >-
+      jdbc:mysql://localhost:53306/${application.name}
+      ?useUnicode=true
+      &characterEncoding=utf8
+      &useSSL=false
+      &useLegacyDatetimeCode=false
+      &serverTimezone=GMT%2B8
+    username: root
+    password:
+  data:
+    # see https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-nosql.html#boot-features-connecting-to-elasticsearch-jest
+    jest:
+      uris:
+        - http://localhost:59200
+    rest:
+      base-path: /api
+    jpa:
+      repositories:
+        enabled: true
+        bootstrap-mode: deferred
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database: MYSQL
+    open-in-view: false
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+      hibernate.jdbc.time_zone: GMT+8
+      javax.persistence.validation.group.pre-update: ${application.domain}.aop.validation.group.UPDATE
+      javax.persistence.validation.group.pre-create: ${application.domain}.aop.validation.group.PERSIST
+
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+
+  messages:
+    basename: i18n/messages
+
+  main:
+    allow-bean-definition-overriding: true
+
+  mvc:
+    favicon:
+      enabled: false
+
+  task:
+    execution:
+      thread-name-prefix: ${application.name}-task-
+      pool:
+        core-size: 2
+        max-size: 50
+        queue-capacity: 10000
+    scheduling:
+      thread-name-prefix: ${application.name}-scheduling-
+      pool:
+        size: 2
+
+  thymeleaf:
+    mode: HTML
+
+  jmx:
+    enabled: false
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+
+# Properties to be exposed on the /info management endpoint
+info:
+  # Comma separated list of profiles that will trigger the ribbon to show
+  display-ribbon-on-profiles: 'dev'
+
+# ===================================================================
+# Full reference is available at: https://www.jhipster.tech/common-application-properties/
+# ===================================================================
+
+jhipster:
+  mail:
+    from: ${application.name}@localhost
+  swagger:
+    default-include-pattern: /api/.*
+    title: ${application.name} API
+    description: ${application.name} API documentation
+    version: 0.0.1
+    terms-of-service-url:
+    contact-name:
+    contact-url:
+    contact-email:
+    license:
+    license-url:
+
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include:
+        ? 'configprops'
+        ? 'env'
+        ? 'health'
+        ? 'info'
+        ? 'jhimetrics'
+        ? 'logfile'
+        ? 'loggers'
+        ? 'prometheus'
+        ? 'threaddump'
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: 'ROLE_ADMIN'
+    jhimetrics:
+      enabled: true
+  info:
+    git:
+      mode: full
+  health:
+    mail:
+      enabled: false # When using the MailService, configure an SMTP server and set this to true
+  metrics:
+    export:
+      # Prometheus is the default metrics backend
+      prometheus:
+        enabled: true
+        step: 60
+    enable:
+      http: true
+      jvm: true
+      logback: true
+      process: true
+      system: true
+    distribution:
+      percentiles-histogram:
+        all: true
+      percentiles:
+        all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
+    tags:
+      application: ${application.name}
+    web:
+      server:
+        auto-time-requests: true
